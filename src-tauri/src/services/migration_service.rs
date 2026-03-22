@@ -16,11 +16,33 @@ struct Migration {
 }
 
 /// All migrations in order. Add new migrations here.
-const MIGRATIONS: &[Migration] = &[Migration {
-    version: 1,
-    name: "M001_initial_schema",
-    sql: include_str!("../../migrations/M001_initial_schema.sql"),
-}];
+const MIGRATIONS: &[Migration] = &[
+    Migration {
+        version: 1,
+        name: "M001_initial_schema",
+        sql: include_str!("../../migrations/M001_initial_schema.sql"),
+    },
+    Migration {
+        version: 2,
+        name: "M002_add_error_state",
+        sql: include_str!("../../migrations/M002_add_error_state.sql"),
+    },
+    Migration {
+        version: 3,
+        name: "M003_typography_config",
+        sql: include_str!("../../migrations/M003_typography_config.sql"),
+    },
+    Migration {
+        version: 4,
+        name: "M004_generation_results",
+        sql: include_str!("../../migrations/M004_generation_results.sql"),
+    },
+    Migration {
+        version: 5,
+        name: "M005_annotations",
+        sql: include_str!("../../migrations/M005_annotations.sql"),
+    },
+];
 
 impl MigrationService {
     pub fn new(pool: SqlitePool) -> Self {
