@@ -4,8 +4,10 @@
   import type { Snippet } from 'svelte';
   import { t } from '$lib/i18n/engine';
   import { projectsStore } from '$lib/stores/projectStore';
+  import { toastStore } from '$lib/stores/toastStore';
   import { onMount } from 'svelte';
   import { ipcGetProject } from '$lib/ipc/projects';
+  import { ROUTES, PROJECT_ROUTES } from '$lib/constants/routes';
 
   interface Props {
     children?: Snippet;
@@ -19,33 +21,43 @@
 
   const tabs = $derived([
     {
-      href: `/project/${projectId}`,
+      href: PROJECT_ROUTES.ROOT(projectId),
       label: t('nav.editor'),
       exact: true,
     },
     {
-      href: `/project/${projectId}/typography`,
+      href: PROJECT_ROUTES.TYPOGRAPHY(projectId),
       label: t('nav.typography'),
       exact: false,
     },
     {
-      href: `/project/${projectId}/illustrations`,
+      href: PROJECT_ROUTES.ILLUSTRATIONS(projectId),
       label: t('nav.illustrations'),
       exact: false,
     },
     {
-      href: `/project/${projectId}/output`,
+      href: PROJECT_ROUTES.OUTPUT(projectId),
       label: t('nav.output'),
       exact: false,
     },
     {
-      href: `/project/${projectId}/preview`,
+      href: PROJECT_ROUTES.PREVIEW(projectId),
       label: t('nav.preview'),
       exact: false,
     },
     {
-      href: `/project/${projectId}/cover`,
+      href: PROJECT_ROUTES.COVER(projectId),
       label: t('nav.cover'),
+      exact: false,
+    },
+    {
+      href: PROJECT_ROUTES.INTEGRATION(projectId),
+      label: t('nav.integration'),
+      exact: false,
+    },
+    {
+      href: PROJECT_ROUTES.SETTINGS(projectId),
+      label: t('nav.settings'),
       exact: false,
     },
   ]);
@@ -58,7 +70,7 @@
   onMount(async () => {
     // Tentar carregar projeto pelo id
     if (!projectId) {
-      goto('/');
+      goto(ROUTES.HOME);
       return;
     }
     try {
@@ -67,10 +79,11 @@
         projectsStore.setCurrent(project);
       } else {
         // Projeto não encontrado — redirecionar ao dashboard
-        goto('/');
+        goto(ROUTES.HOME);
       }
-    } catch {
-      // TODO: Implementar backend
+    } catch (e) {
+      toastStore.error(t('errors.projectNotFound'));
+      goto(ROUTES.HOME);
     }
   });
 </script>

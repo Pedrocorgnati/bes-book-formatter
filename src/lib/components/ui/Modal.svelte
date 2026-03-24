@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { Snippet } from 'svelte';
+  import { t } from '$lib/i18n/engine';
 
   interface Props {
     open: boolean;
@@ -54,11 +55,11 @@
     trapFocus(e);
   }
 
-  // Foca no modal quando abre
+  // Foca no modal quando abre — rAF garante que o layout está calculado antes do focus
   $effect(() => {
     if (open && modalEl) {
       const focusable = modalEl.querySelector<HTMLElement>('button, [href], input, [tabindex]:not([tabindex="-1"])');
-      setTimeout(() => focusable?.focus(), 50);
+      requestAnimationFrame(() => focusable?.focus());
     }
   });
 </script>
@@ -90,7 +91,7 @@
         data-testid="modal-close-button"
         class="modal__close"
         onclick={onClose}
-        aria-label="Fechar modal"
+        aria-label={t('a11y.closeModal')}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"/>

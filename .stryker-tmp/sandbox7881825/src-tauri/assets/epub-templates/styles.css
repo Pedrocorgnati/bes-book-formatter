@@ -1,0 +1,276 @@
+/* BES Book Formatter — EPUB Base Stylesheet
+ * Covers: drop cap, small caps, footnotes, blockquotes, epigraphs, ornaments.
+ * Code block base styles are in syntax.css (included separately).
+ * Compatible with EPUB 3 / Kindle (KFX) renderers.
+ */
+
+/* ── Typography reset ──────────────────────────────────────────────────── */
+
+body {
+  font-size: 1em;
+  line-height: 1.5;
+  text-align: justify;
+  hyphens: auto;
+  -epub-hyphens: auto;
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  margin: 0;
+  text-indent: 1.5em;
+}
+
+p:first-of-type,
+h1 + p,
+h2 + p,
+h3 + p {
+  text-indent: 0;
+}
+
+/* ── ST001: Drop cap ───────────────────────────────────────────────────── */
+
+/* .drop-cap wraps the first letter of a chapter's opening paragraph. */
+.drop-cap {
+  float: left;
+  font-size: 3em;
+  font-weight: bold;
+  line-height: 0.85;
+  margin-right: 0.05em;
+  margin-top: 0.05em;
+  /* Ensure the drop cap aligns with 2-3 lines of body text */
+  padding-bottom: 0.05em;
+}
+
+/* ST001: Small caps */
+.small-caps {
+  font-variant: small-caps;
+  font-variant-caps: small-caps;
+  -epub-font-variant: small-caps;
+}
+
+/* ── ST002: Footnotes ──────────────────────────────────────────────────── */
+
+/* Inline superscript marker */
+sup a {
+  font-size: 0.75em;
+  vertical-align: super;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Footnote section at end of chapter */
+section.footnotes {
+  margin-top: 3em;
+  padding-top: 1em;
+  border-top: 1px solid #cccccc;
+  font-size: 0.875em;
+}
+
+aside[epub|type~="doc-footnote"] p {
+  text-indent: 0;
+  margin: 0.5em 0;
+}
+
+aside[epub|type~="doc-footnote"] a[epub|type~="backlink"] {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ── ST003: Code blocks ────────────────────────────────────────────────── */
+/* Base styles here; syntax highlighting colors are inline (from syntect). */
+
+pre.code-block {
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  font-size: 0.85em;
+  line-height: 1.4;
+  padding: 0.75em 1em;
+  margin: 1.25em 0;
+  overflow-x: auto;
+  white-space: pre;
+  border-radius: 4px;
+  /* Fallback background if syntect inline style is stripped */
+  background-color: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  /* Disable EPUB font scaling */
+  -epub-hyphens: none;
+  hyphens: none;
+}
+
+/* ── ST004: Blockquotes ────────────────────────────────────────────────── */
+
+blockquote.blockquote {
+  margin: 1.5em 0 1.5em 2em;
+  padding-left: 1em;
+  border-left: 3px solid #aaaaaa;
+  font-style: italic;
+  font-size: 0.95em;
+  color: inherit;
+}
+
+blockquote.blockquote p {
+  text-indent: 0;
+  margin: 0.25em 0;
+}
+
+/* ── ST004: Epigraphs ──────────────────────────────────────────────────── */
+
+.epigraph {
+  text-align: right;
+  margin: 2em 0 3em auto;
+  width: 55%;
+  font-style: italic;
+  font-size: 0.9em;
+  color: inherit;
+}
+
+.epigraph p {
+  text-indent: 0;
+  margin: 0;
+}
+
+.epigraph cite {
+  display: block;
+  font-style: normal;
+  font-size: 0.85em;
+  margin-top: 0.5em;
+  color: #666666;
+}
+
+/* ── ST004: Ornaments ──────────────────────────────────────────────────── */
+
+p.ornament {
+  text-align: center;
+  margin: 1.5em 0;
+  font-size: 1.25em;
+  color: #444444;
+  -epub-hyphens: none;
+  hyphens: none;
+  page-break-inside: avoid;
+}
+
+hr.ornament.ornament-rule {
+  border: none;
+  border-top: 1px solid #888888;
+  width: 30%;
+  margin: 1.5em auto;
+}
+
+p.ornament.ornament-fleuron {
+  font-size: 1.5em;
+}
+
+p.ornament.ornament-dinkus {
+  letter-spacing: 0.5em;
+}
+
+/* ── ST003 TASK-4: Front Matter styles ────────────────────────────────── */
+
+/* Title page (Frontispício) */
+.title-page {
+  text-align: center;
+  page-break-before: right;
+}
+
+.title-page .book-title {
+  font-size: 2.5em;
+  font-weight: bold;
+  margin-top: 30vh;
+  margin-bottom: 0.75em;
+  line-height: 1.2;
+}
+
+.title-page .book-author {
+  font-size: 1.3em;
+  font-style: italic;
+  margin-bottom: 1em;
+}
+
+.title-page .book-publisher {
+  position: absolute;
+  bottom: 10%;
+  left: 0;
+  right: 0;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+/* Dedication */
+.dedication {
+  text-align: center;
+  page-break-before: always;
+}
+
+.dedication p {
+  margin-top: 33vh;
+  font-style: italic;
+  text-indent: 0;
+}
+
+/* Copyright page */
+.copyright-page {
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+.copyright-page p {
+  text-indent: 0;
+  margin: 0.5em 0;
+}
+
+/* ── ST003 TASK-4: Back Matter styles ──────────────────────────────────── */
+
+/* References (ABNT NBR 6023:2018 hanging indent) */
+.references p,
+.references li {
+  text-indent: 0;
+  padding-left: 2em;
+  text-indent: -2em;
+  margin: 0.75em 0;
+  line-height: 1.5;
+}
+
+/* Colophon */
+.colophon {
+  text-align: center;
+  font-size: 0.8em;
+  color: #555555;
+  page-break-before: always;
+}
+
+.colophon p {
+  text-indent: 0;
+  margin: 0.25em 0;
+}
+
+/* About Author */
+.about-author h1,
+.about-author h2 {
+  font-size: 1.25em;
+}
+
+/* ── ST002 TASK-4: TOC / Nav styles ──────────────────────────────────── */
+
+nav[epub|type~="toc"] ol {
+  list-style: none;
+  padding: 0;
+  margin: 1em 0;
+}
+
+nav[epub|type~="toc"] li {
+  margin: 0.4em 0;
+}
+
+nav[epub|type~="toc"] a {
+  text-decoration: none;
+  color: inherit;
+}
+
+nav[epub|type~="toc"] a:hover {
+  text-decoration: underline;
+}
+
+nav[epub|type~="toc"] ol ol {
+  padding-left: 1.5em;
+  font-size: 0.9em;
+}

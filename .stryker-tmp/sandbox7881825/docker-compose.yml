@@ -1,0 +1,93 @@
+# BES Book Formatter — Docker Compose (Ambiente de Desenvolvimento)
+#
+# IMPORTANTE: App desktop Tauri não roda como servidor web.
+# Este compose fornece o toolchain de desenvolvimento (Rust + Node.js + webkit)
+# para construir e testar a aplicação sem instalar dependências localmente.
+#
+# Uso:
+#   docker compose run --rm dev npm run check        # type-check SvelteKit
+#   docker compose run --rm dev npm run lint         # lint
+#   docker compose run --rm dev cargo test           # testes Rust
+#   docker compose run --rm dev npm run tauri:build  # build completo
+#   docker compose up dev-watch                      # watch mode (SvelteKit)
+
+services:
+
+  # ── Toolchain completo (Rust + Node.js + webkit2gtk)
+  dev:
+    build:
+      context: .
+      target: builder
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node_modules_cache:/app/node_modules
+      - cargo_registry:/usr/local/cargo/registry
+      - cargo_git:/usr/local/cargo/git
+      - target_cache:/app/src-tauri/target
+    env_file:
+      - .env.docker
+    environment:
+      - RUST_LOG=debug
+      - RUST_BACKTRACE=1
+    # Sem portas expostas — app desktop, sem servidor
+    command: bash -c "npm ci --legacy-peer-deps && echo 'Toolchain pronto. Use: docker compose run --rm dev <comando>'"
+
+  # ── Watch mode SvelteKit (apenas frontend, sem Tauri)
+  dev-watch:
+    build:
+      context: .
+      target: node-deps
+    image: node:20-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node_modules_cache:/app/node_modules
+    env_file:
+      - .env.docker
+    ports:
+      - "5173:5173"
+    command: sh -c "npm ci --legacy-peer-deps && npm run dev -- --host 0.0.0.0"
+
+  # ── Testes Rust isolados (cargo test)
+  test-rust:
+    build:
+      context: .
+      target: builder
+    working_dir: /app/src-tauri
+    volumes:
+      - .:/app
+      - cargo_registry:/usr/local/cargo/registry
+      - cargo_git:/usr/local/cargo/git
+      - target_cache:/app/src-tauri/target
+    env_file:
+      - .env.docker
+    environment:
+      - RUST_LOG=debug
+      - RUST_TEST_THREADS=4
+    command: cargo test --lib -- --nocapture
+
+  # ── Build de release (gera .deb e .AppImage)
+  build-release:
+    build:
+      context: .
+      target: builder
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node_modules_cache:/app/node_modules
+      - cargo_registry:/usr/local/cargo/registry
+      - cargo_git:/usr/local/cargo/git
+      - target_cache:/app/src-tauri/target
+      - ./dist-bundles:/app/src-tauri/target/release/bundle
+    env_file:
+      - .env.docker
+    environment:
+      - RUST_LOG=info
+    command: sh -c "npm ci --legacy-peer-deps && npm run tauri:build"
+
+volumes:
+  node_modules_cache:
+  cargo_registry:
+  cargo_git:
+  target_cache:

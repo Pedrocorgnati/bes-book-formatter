@@ -13,7 +13,8 @@ export enum Genre {
   BUSINESS = 'business',
   MANAGEMENT = 'management',
   CHILDREN = 'children',
-  YA = 'ya'
+  YA = 'ya',
+  POETRY = 'poetry'
 }
 
 export enum OutputFormat {
@@ -40,7 +41,8 @@ export enum Platform {
 export enum IllustrationState {
   PENDING = 'pending',
   IMPORTED = 'imported',
-  LINKED = 'linked'
+  LINKED = 'linked',
+  ERROR = 'error'
 }
 
 export enum PageFormat {
@@ -106,4 +108,56 @@ export enum ManuscriptCompleteness {
   BLOCKING = 'blocking',
   WARNING = 'warning',
   NORMAL = 'normal'
+}
+
+export enum ColorSpace {
+  SRGB = 'srgb',
+  CMYK = 'cmyk'
+}
+
+// ----------------------------------------------------------
+// Runtime/UI enums (estados de geração, anotação, tipografia)
+// ----------------------------------------------------------
+
+export enum GenerationStatus {
+  IDLE = 'idle',
+  PREFLIGHT = 'preflight',
+  GENERATING = 'generating',
+  DONE = 'done',
+  ERROR = 'error'
+}
+
+export enum AnnotationType {
+  COMMENT = 'comment',
+  HIGHLIGHT = 'highlight',
+  FLAG = 'flag'
+}
+
+export enum TypoIssueType {
+  ORPHAN = 'orphan',
+  WIDOW = 'widow'
+}
+
+export enum FrontMatterType {
+  HALF_TITLE = 'half_title',
+  TITLE_PAGE = 'title_page',
+  COPYRIGHT_PAGE = 'copyright_page',
+  DEDICATION = 'dedication',
+  EPIGRAPH = 'epigraph',
+  TOC = 'toc',
+  FOREWORD = 'foreword',
+  PREFACE = 'preface',
+  ACKNOWLEDGMENTS = 'acknowledgments',
+  UNKNOWN = 'unknown'
+}
+
+export enum BackMatterType {
+  APPENDIX = 'appendix',
+  REFERENCES = 'references',
+  BIBLIOGRAPHY = 'bibliography',
+  GLOSSARY = 'glossary',
+  INDEX = 'index',
+  ABOUT_AUTHOR = 'about_author',
+  COLOPHON = 'colophon',
+  UNKNOWN = 'unknown'
 }

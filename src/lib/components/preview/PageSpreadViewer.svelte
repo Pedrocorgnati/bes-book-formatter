@@ -1,32 +1,15 @@
 <script lang="ts">
-  import { invoke } from '@tauri-apps/api/core';
   import { listen } from '@tauri-apps/api/event';
   import { onMount, onDestroy } from 'svelte';
   import { t } from '$lib/i18n/engine';
-  import type { ApiResponse } from '$lib/types';
+  import { ipcRenderPreviewPage } from '$lib/ipc/preview';
+  import type { PreviewPageImage, PreviewPageResponse } from '$lib/ipc/preview';
+  import type { LayoutIssue as TypoIssue } from '$lib/types/interfaces';
+  import { TIMING, PREVIEW_PAGE_CACHE_SIZE } from '$lib/constants/timing';
   import AnnotationLayer from './AnnotationLayer.svelte';
   import OrphanWidowHighlight from './OrphanWidowHighlight.svelte';
 
-  interface PageImage {
-    pageNumber: number;
-    imageBase64: string;
-    widthPx: number;
-    heightPx: number;
-  }
-
-  interface TypoIssue {
-    issueType: string;
-    pageNumber: number;
-    lineText: string;
-    lineYPercent: number;
-    severity: string;
-  }
-
-  interface PreviewPageResponse {
-    pages: PageImage[];
-    totalPages: number;
-    renderMs: number;
-  }
+  type PageImage = PreviewPageImage;
 
   interface Props {
     projectId: string;
@@ -63,14 +46,13 @@
 
   // In-memory page cache: "page_zoom_spread" → PageImage
   const pageCache = new Map<string, PageImage>();
-  const MAX_CACHE = 10;
 
   function cacheKey(page: number, z: number, spread: boolean) {
     return `${page}_${z}_${spread}`;
   }
 
   function evictCache() {
-    if (pageCache.size > MAX_CACHE) {
+    if (pageCache.size > PREVIEW_PAGE_CACHE_SIZE) {
       const first = pageCache.keys().next().value;
       if (first) pageCache.delete(first);
     }
@@ -95,19 +77,8 @@
     error = null;
 
     try {
-      const res = await invoke<ApiResponse<PreviewPageResponse>>('render_preview_page', {
-        projectId,
-        page,
-        zoom: z,
-        spread,
-      });
+      const data = await ipcRenderPreviewPage(projectId, page, z, spread);
 
-      if (res.error) {
-        error = res.error;
-        return;
-      }
-
-      const data = res.data!;
       pages = data.pages;
       totalPages = data.totalPages;
       renderMs = data.renderMs;
@@ -143,17 +114,10 @@
     const key = cacheKey(page, zoom, spreadMode);
     if (pageCache.has(key)) return;
     try {
-      const res = await invoke<ApiResponse<PreviewPageResponse>>('render_preview_page', {
-        projectId,
-        page,
-        zoom,
-        spread: spreadMode,
-      });
-      if (res.data) {
-        for (const p of res.data.pages) {
-          pageCache.set(cacheKey(p.pageNumber, zoom, spreadMode), p);
-          evictCache();
-        }
+      const data = await ipcRenderPreviewPage(projectId, page, zoom, spreadMode);
+      for (const p of data.pages) {
+        pageCache.set(cacheKey(p.pageNumber, zoom, spreadMode), p);
+        evictCache();
       }
     } catch {
       // Silent — prefetch failures are non-critical
@@ -190,7 +154,7 @@
       debounceTimer = setTimeout(() => {
         invalidateLocalCache();
         renderPage(currentPage, zoom, spreadMode);
-      }, 300);
+      }, TIMING.DEBOUNCE_PREVIEW_NAVIGATE);
     });
 
     // Live preview: listen for ast-changed events (manuscript save)
@@ -201,7 +165,7 @@
         invalidateLocalCache();
         renderPage(1, zoom, false);
         onNavigate?.(1);
-      }, 300);
+      }, TIMING.DEBOUNCE_PREVIEW_NAVIGATE);
     });
   });
 
@@ -209,6 +173,7 @@
     if (debounceTimer) clearTimeout(debounceTimer);
     unlistenConfig?.();
     unlistenAst?.();
+    pageCache.clear();
   });
 
   // Re-render when props change

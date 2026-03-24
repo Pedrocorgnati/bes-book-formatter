@@ -51,3 +51,15 @@ export async function ipcMutation<T>(
 ): Promise<T> {
   return ipc<T>(command, args);
 }
+
+/**
+ * Unwraps an ApiResponse<T>, throwing if error is present or data is null.
+ * Eliminates the need for non-null assertions on result.data in IPC callers.
+ */
+export function unwrapResponse<T>(result: { data: T | null; error: string | null }): T {
+  if (result.error) throw new Error(result.error);
+  if (result.data === null || result.data === undefined) {
+    throw new Error('IPC response contained no data and no error');
+  }
+  return result.data;
+}

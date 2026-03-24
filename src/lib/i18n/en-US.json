@@ -22,7 +22,13 @@
     "editor": "Editor",
     "output": "Output",
     "goToSettings": "Go to settings",
-    "marketplaceCombined": "Marketplace (coming soon)"
+    "marketplaceCombined": "Marketplace (coming soon)",
+    "integration": "BES Integration"
+  },
+  "integration": {
+    "description": "Manage BES workspace integration and track editorial progress.",
+    "emptyTitle": "BES workspace not configured",
+    "emptyDesc": "Set the BES workspace path in project settings to enable integration."
   },
   "header": {
     "toggleTheme": "Toggle theme",
@@ -157,7 +163,10 @@
     "retry": "Retry",
     "noData": "No data available.",
     "version": "Version {version}",
-    "comingSoon": "This feature will be available soon."
+    "comingSoon": "This feature will be available soon.",
+    "saved": "Saved successfully.",
+    "deleted": "Deleted successfully.",
+    "errorGeneric": "An error occurred. Please try again."
   },
   "typography": {
     "pageSubtitle": "Configure fonts, spacing, and typographic style for the book.",
@@ -241,7 +250,9 @@
     "ariaRemoveFont": "Remove font: {name}",
     "customDimensions": "Custom dimensions",
     "pageWidthLabel": "Page width in inches",
-    "pageHeightLabel": "Page height in inches"
+    "pageHeightLabel": "Page height in inches",
+    "fontSizeRangeError": "Font size must be between 8 and 48pt.",
+    "orphanWidowRangeError": "Value must be between 1 and 6 lines."
   },
   "illustrations": {
     "pageSubtitle": "Manage book illustrations — import, validate DPI, and configure alt-text.",
@@ -375,7 +386,10 @@
     "manualTab": "Manual",
     "presetTab": "Preset",
     "historyLoadError": "Failed to load generation history",
-    "selectAtLeastOne": "Select at least one format to continue."
+    "selectAtLeastOne": "Select at least one format to continue.",
+    "preflightError": "Preflight failed",
+    "generateFormatError": "Error generating format",
+    "partialError": "One or more formats failed"
   },
   "preview": {
     "sidebarLabel": "Navigation sidebar",
@@ -433,7 +447,106 @@
     "annotationContent": "Content",
     "annotationPlaceholder": "Type your annotation...",
     "annotationColor": "Color",
-    "annotation": "Annotation"
+    "annotation": "Annotation",
+    "toolbarLabel": "Preview toolbar",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
+    "pageInputLabel": "Page number",
+    "ofPages": "of {total}",
+    "zoom": "Zoom",
+    "fitPage": "Fit page",
+    "spreadMode": "Spread mode",
+    "spread": "Spread",
+    "ruler": "Ruler",
+    "checkOrphans": "Check orphans",
+    "renderTime": "Render time",
+    "annotationContentRequired": "Please enter content for this comment."
+  },
+  "bes": {
+    "statusPanel": {
+      "title": "BES Integration",
+      "checking": "Checking workspace…",
+      "valid": "BES workspace valid",
+      "warning": "Workspace with warnings",
+      "error": "Invalid workspace",
+      "idle": "Waiting for workspace…",
+      "recheck": "Recheck",
+      "missingFiles": "Missing files",
+      "workspacePathMissing": "Workspace path not provided."
+    },
+    "metadata": {
+      "title": "Title",
+      "author": "Author",
+      "genre": "Genre",
+      "language": "Language",
+      "isbn": "ISBN",
+      "publisher": "Publisher"
+    },
+    "progress": {
+      "title": "Editorial Progress",
+      "sync": "Sync",
+      "syncing": "Syncing…",
+      "loading": "Loading editorial progress…",
+      "error": "Error loading progress",
+      "empty": "Workspace not linked or no progress recorded.",
+      "updated": "Updated"
+    },
+    "settings": {
+      "integrationTab": "BES Integration",
+      "progressTab": "Editorial Progress"
+    }
+  },
+  "cover": {
+    "spine": {
+      "title": "Spine Width",
+      "pages": "Pages",
+      "platform": "Platform",
+      "paper": "Paper",
+      "width": "Width",
+      "hint": "Generate the interior PDF first to calculate the spine width accurately.",
+      "calculating": "Calculating…",
+      "recalculate": "Recalculate",
+      "platformKdp": "Amazon KDP",
+      "platformIngram": "IngramSpark",
+      "platformGeneric": "Generic",
+      "paperWhite": "White",
+      "paperCream": "Cream"
+    },
+    "editor": {
+      "tabTemplates": "Templates",
+      "tabTexts": "Texts",
+      "tabDesign": "Design",
+      "platform": "Platform",
+      "platformGeneric": "Generic",
+      "paper": "Paper",
+      "paperWhite": "White",
+      "paperCream": "Cream",
+      "titleOverride": "Title (overrides project name)",
+      "titleOverridePlaceholder": "Leave empty to use project name",
+      "subtitle": "Subtitle",
+      "subtitlePlaceholder": "Optional",
+      "author": "Author",
+      "authorPlaceholder": "Author name",
+      "backCoverText": "Back cover text",
+      "backCoverPlaceholder": "Synopsis, about the author, ISBN…",
+      "primaryColor": "Primary color",
+      "primaryColorHex": "Primary color hex value",
+      "secondaryColor": "Secondary color",
+      "secondaryColorHex": "Secondary color hex value",
+      "fontTitle": "Title font",
+      "fontAuthor": "Author font",
+      "preview": "Preview",
+      "save": "Save",
+      "saving": "Saving…",
+      "templateApplied": "Template \"{name}\" applied.",
+      "configSaved": "Cover configuration saved.",
+      "invalidHexColor": "Invalid color. Use #RRGGBB format.",
+      "colorsLegend": "Cover colors"
+    },
+    "preview": {
+      "saveFirst": "Save the cover configuration before previewing.",
+      "saveBeforeExport": "Save the cover configuration before exporting."
+    }
   },
   "a11y": {
     "skipNav": "Skip to content",

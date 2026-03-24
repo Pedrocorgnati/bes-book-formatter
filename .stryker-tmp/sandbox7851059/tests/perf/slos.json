@@ -1,0 +1,128 @@
+{
+  "_comment": "SLOs de performance para IPC commands e sidecars do BES Book Formatter. Extraídos do PRD (cold start < 2s, navegação < 100ms) e defaults por tipo de operação.",
+  "global": {
+    "cold_start_max_ms": 2000,
+    "navigation_max_ms": 100,
+    "ipc_overhead_max_ms": 5
+  },
+  "ipc_commands": {
+    "init_database": {
+      "p95_ms": 500,
+      "p99_ms": 1000,
+      "description": "Inicialização SQLite + migrations"
+    },
+    "get_projects": {
+      "p95_ms": 50,
+      "p99_ms": 100,
+      "description": "Listar projetos recentes (SQLite read)"
+    },
+    "import_project": {
+      "p95_ms": 3000,
+      "p99_ms": 5000,
+      "description": "Importar repositório BES completo"
+    },
+    "parse_manuscript": {
+      "p95_ms": 5000,
+      "p99_ms": 10000,
+      "description": "Parsing do manuscrito (até 1000 páginas, timeout 30s)"
+    },
+    "calculate_completeness": {
+      "p95_ms": 1000,
+      "p99_ms": 2000,
+      "description": "Cálculo de completude do manuscrito"
+    },
+    "run_content_checklist": {
+      "p95_ms": 2000,
+      "p99_ms": 4000,
+      "description": "Checklist de conteúdo pré-geração"
+    },
+    "get_illustrations": {
+      "p95_ms": 50,
+      "p99_ms": 100,
+      "description": "Listar ilustrações (SQLite read)"
+    },
+    "process_illustration": {
+      "p95_ms": 2000,
+      "p99_ms": 5000,
+      "description": "Importar e validar imagem (DPI, cor, dimensões)"
+    },
+    "apply_typography": {
+      "p95_ms": 200,
+      "p99_ms": 500,
+      "description": "Aplicar configuração tipográfica"
+    },
+    "generate_toc": {
+      "p95_ms": 1000,
+      "p99_ms": 2000,
+      "description": "Gerar tabela de conteúdos"
+    },
+    "generate_epub": {
+      "p95_ms": 15000,
+      "p99_ms": 30000,
+      "description": "Geração EPUB 3.3 completa"
+    },
+    "generate_pdf": {
+      "p95_ms": 20000,
+      "p99_ms": 45000,
+      "description": "Geração PDF via Typst + Ghostscript"
+    },
+    "run_preflight": {
+      "p95_ms": 5000,
+      "p99_ms": 10000,
+      "description": "Preflight pré-geração"
+    },
+    "validate_output": {
+      "p95_ms": 10000,
+      "p99_ms": 20000,
+      "description": "Validação EPUBCheck"
+    },
+    "render_preview": {
+      "p95_ms": 500,
+      "p99_ms": 1000,
+      "description": "Preview live de página (Typst single-page)"
+    },
+    "get_layout_issues": {
+      "p95_ms": 2000,
+      "p99_ms": 5000,
+      "description": "Detecção de órfãos/viúvas"
+    },
+    "set_preference": {
+      "p95_ms": 20,
+      "p99_ms": 50,
+      "description": "Salvar preferência (SQLite write)"
+    },
+    "get_preferences": {
+      "p95_ms": 20,
+      "p99_ms": 50,
+      "description": "Ler preferências (SQLite read)"
+    }
+  },
+  "sidecars": {
+    "typst_single_page": {
+      "p95_ms": 500,
+      "p99_ms": 1000,
+      "description": "Compilação Typst de uma página (preview)"
+    },
+    "typst_full_book": {
+      "p95_ms": 15000,
+      "p99_ms": 30000,
+      "description": "Compilação Typst de livro completo (~350ms/página)"
+    },
+    "ghostscript_pdfx": {
+      "p95_ms": 10000,
+      "p99_ms": 20000,
+      "description": "Conversão Ghostscript para PDF/X-1a ou PDF/X-4"
+    },
+    "epubcheck_validation": {
+      "p95_ms": 8000,
+      "p99_ms": 15000,
+      "description": "Validação EPUBCheck via JAR"
+    }
+  },
+  "sqlite": {
+    "single_read_max_ms": 10,
+    "single_write_max_ms": 20,
+    "bulk_insert_100_max_ms": 500,
+    "concurrent_reads_10_max_ms": 50
+  }
+}

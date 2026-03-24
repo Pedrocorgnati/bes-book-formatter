@@ -4,7 +4,8 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { initPreferences, preferencesStore } from '$lib/stores/preferencesStore';
-  import { initLocale, t } from '$lib/i18n/engine';
+  import { initLocale, t, locale } from '$lib/i18n/engine';
+  import { initAnalytics } from '$lib/utils/analytics';
   import { projectsStore } from '$lib/stores/projectStore';
   import { ipcInitDatabase, ipcGetProjects } from '$lib/ipc/projects';
   import AppShell from '$lib/components/layout/AppShell.svelte';
@@ -23,6 +24,11 @@
   let { children }: Props = $props();
 
   let loading = $state(true);
+
+  // Atualiza lang do HTML raiz quando o locale muda (WCAG 3.1.1)
+  $effect(() => {
+    document.documentElement.lang = $locale;
+  });
 
   // Breadcrumb derivado da rota atual
   const breadcrumb = $derived(() => {
@@ -45,38 +51,34 @@
   onMount(() => {
     // Async initialization - fire and forget to avoid returning Promise from callback
     (async () => {
-      // Inicializar preferências e locale
+      // Inicializar preferências, locale e analytics
       await initPreferences();
       initLocale();
+      initAnalytics();
 
       // Inicializar banco de dados e carregar projetos
       try {
         await ipcInitDatabase();
         const projects = await ipcGetProjects();
         projectsStore.setProjects(projects);
-      } catch {
-        // TODO: Implementar backend — banco vazio no stub
+      } catch (err) {
+        const message = err instanceof Error ? err.message : t('errors.generic');
+        projectsStore.setError(message);
       }
 
       loading = false;
     })();
 
-    // Atalhos de teclado globais
-    function handleKeydown(e: KeyboardEvent) {
-      const meta = e.metaKey || e.ctrlKey;
-      if (meta && e.key === ',') {
-        e.preventDefault();
-        goto('/settings');
-      }
-      if (meta && e.key === 'i') {
-        e.preventDefault();
-        goto('/import');
-      }
-      // Note: Cmd+B to toggle sidebar is now handled by AppShell internally
+    // Listen for navigation events dispatched by AppShell keyboard shortcuts
+    function handleNavigate(e: Event) {
+      const detail = (e as CustomEvent<string>).detail;
+      if (detail) goto(detail);
     }
+    window.addEventListener('bes:navigate', handleNavigate);
 
-    window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
+    return () => {
+      window.removeEventListener('bes:navigate', handleNavigate);
+    };
   });
 </script>
 
@@ -101,7 +103,7 @@
   {/snippet}
 
   {#snippet main()}
-    <main id="main-content" class="layout-main" tabindex="-1">
+    <div class="layout-main" tabindex="-1">
       {#if loading}
         <div class="layout-main__loading" aria-label={t('common.loading')}>
           <div class="spinner" aria-hidden="true"></div>
@@ -109,7 +111,7 @@
       {:else}
         {@render children?.()}
       {/if}
-    </main>
+    </div>
   {/snippet}
 
   {#snippet rightPanel()}

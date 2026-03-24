@@ -1,28 +1,11 @@
 <script lang="ts">
-  import { invoke } from '@tauri-apps/api/core';
   import { t } from '$lib/i18n/engine';
+  import { toast } from '$lib/stores/toastStore';
   import TypographyPanel from '$lib/components/typography/TypographyPanel.svelte';
-  import type { ApiResponse } from '$lib/types';
-
-  interface Annotation {
-    id: string;
-    projectId: string;
-    pageNumber: number;
-    xPercent: number;
-    yPercent: number;
-    annotationType: string;
-    color: string;
-    content: string;
-    createdAt: string;
-  }
-
-  interface TypoIssue {
-    issueType: string;
-    pageNumber: number;
-    lineText: string;
-    lineYPercent: number;
-    severity: string;
-  }
+  import { ipcGetAllAnnotations, ipcDetectOrphansWidows } from '$lib/ipc/preview';
+  import type { Annotation } from '$lib/ipc/preview';
+  import type { LayoutIssue as TypoIssue } from '$lib/types/interfaces';
+  import { AnnotationType, TypoIssueType } from '$lib/types/enums';
 
   interface Props {
     projectId: string;
@@ -56,13 +39,9 @@
     if (!projectId) return;
     annotationsLoading = true;
     try {
-      const res = await invoke<ApiResponse<Annotation[]>>('get_annotations', {
-        projectId,
-        pageNumber: 0, // 0 = all pages
-      });
-      if (res.data) annotations = res.data;
+      annotations = await ipcGetAllAnnotations(projectId);
     } catch (e) {
-      console.error('[PreviewRightPanel] loadAnnotations error:', e);
+      console.error('[PreviewRightPanel] loadAnnotations error:', e instanceof Error ? e.message : String(e));
     } finally {
       annotationsLoading = false;
     }
@@ -72,14 +51,13 @@
     if (!projectId) return;
     typoDetecting = true;
     try {
-      const res = await invoke<ApiResponse<TypoIssue[]>>('detect_orphans_widows', { projectId });
-      if (res.data) {
-        typoIssues = res.data;
-        typoDetected = true;
-        onTypoIssuesDetected?.(res.data);
-      }
+      const issues = await ipcDetectOrphansWidows(projectId);
+      typoIssues = issues;
+      typoDetected = true;
+      onTypoIssuesDetected?.(issues);
     } catch (e) {
-      console.error('[PreviewRightPanel] detectTypoIssues error:', e);
+      console.error('[PreviewRightPanel] detectTypoIssues error:', e instanceof Error ? e.message : String(e));
+      toast.error(t('preview.typoDetectionError'));
     } finally {
       typoDetecting = false;
     }
@@ -90,20 +68,20 @@
     if (projectId && !collapsed) loadAnnotations();
   });
 
-  const commentCount = $derived(annotations.filter((a) => a.annotationType === 'comment').length);
-  const highlightCount = $derived(annotations.filter((a) => a.annotationType === 'highlight').length);
-  const flagCount = $derived(annotations.filter((a) => a.annotationType === 'flag').length);
+  const commentCount = $derived(annotations.filter((a) => a.annotationType === AnnotationType.COMMENT).length);
+  const highlightCount = $derived(annotations.filter((a) => a.annotationType === AnnotationType.HIGHLIGHT).length);
+  const flagCount = $derived(annotations.filter((a) => a.annotationType === AnnotationType.FLAG).length);
 
   const visibleAnnotations = $derived(
     annotationsExpanded ? annotations : annotations.slice(0, 5)
   );
 
-  const orphanCount = $derived(typoIssues.filter((i) => i.issueType === 'orphan').length);
-  const widowCount = $derived(typoIssues.filter((i) => i.issueType === 'widow').length);
+  const orphanCount = $derived(typoIssues.filter((i) => i.issueType === TypoIssueType.ORPHAN).length);
+  const widowCount = $derived(typoIssues.filter((i) => i.issueType === TypoIssueType.WIDOW).length);
 
   function annotationIcon(type: string) {
-    if (type === 'comment') return '💬';
-    if (type === 'flag') return '🚩';
+    if (type === AnnotationType.COMMENT) return '💬';
+    if (type === AnnotationType.FLAG) return '🚩';
     return '🖍';
   }
 </script>
@@ -228,7 +206,7 @@
                 aria-label="{issue.issueType} {t('preview.onPage')} {issue.pageNumber}"
               >
                 <span class="typo-type typo-type--{issue.issueType}">
-                  {issue.issueType === 'orphan' ? t('preview.orphan') : t('preview.widow')}
+                  {issue.issueType === TypoIssueType.ORPHAN ? t('preview.orphan') : t('preview.widow')}
                 </span>
                 <span class="typo-text">{issue.lineText}</span>
                 <span class="typo-page">p.{issue.pageNumber}</span>

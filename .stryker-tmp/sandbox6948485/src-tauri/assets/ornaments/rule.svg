@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- BES Book Formatter — Rule ornament (simple horizontal line) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 12" width="240" height="12"
+     role="img" aria-hidden="true">
+  <line x1="24" y1="6" x2="216" y2="6"
+        stroke="#555555" stroke-width="1" stroke-linecap="round"/>
+</svg>

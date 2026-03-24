@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { browser, dev } from '$app/environment';
+  import { TIMING } from '$lib/constants/timing';
 
   let isActive = $state(false);
   let elements = $state<Array<{ id: string; rect: DOMRect }>>([]);
@@ -37,7 +38,7 @@
       document.body.removeChild(textArea);
     }
     copiedId = testId;
-    setTimeout(() => (copiedId = null), 1500);
+    setTimeout(() => (copiedId = null), TIMING.COPY_FEEDBACK_RESET);
   }
 
   $effect(() => {

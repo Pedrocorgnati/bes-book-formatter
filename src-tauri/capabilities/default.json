@@ -8,7 +8,18 @@
     "dialog:default",
     "store:default",
     "shell:allow-open",
-    "shell:allow-execute",
+    {
+      "identifier": "shell:allow-execute",
+      "scope": {
+        "allow": [
+          { "name": "typst",       "cmd": "typst",  "args": true, "sidecar": false },
+          { "name": "ghostscript", "cmd": "gs",     "args": true, "sidecar": false },
+          { "name": "pandoc",      "cmd": "pandoc", "args": true, "sidecar": false },
+          { "name": "java",        "cmd": "java",   "args": true, "sidecar": false },
+          { "name": "which",       "cmd": "which",  "args": true, "sidecar": false }
+        ]
+      }
+    },
     {
       "identifier": "fs:allow-read-file",
       "allow": [

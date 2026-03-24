@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { invoke } from '@tauri-apps/api/core';
   import { listen } from '@tauri-apps/api/event';
   import { onMount, onDestroy } from 'svelte';
   import { t } from '$lib/i18n/engine';
+  import { ipcToggleDistractionFree } from '$lib/ipc/preview';
 
   let distractionFree = $state(false);
   let unlisten: (() => void) | null = null;
 
   async function toggle(enabled: boolean) {
-    await invoke('toggle_distraction_free', { enabled });
+    await ipcToggleDistractionFree(enabled);
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -65,7 +65,7 @@
     font-size: var(--text-sm);
     z-index: 1000;
     animation: df-fade-in 0.3s ease;
-    transition: opacity 0.5s ease;
+    transition: opacity var(--duration-slow) ease;
   }
 
   @keyframes df-fade-in {

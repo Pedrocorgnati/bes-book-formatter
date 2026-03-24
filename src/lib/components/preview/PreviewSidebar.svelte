@@ -1,8 +1,12 @@
 <script lang="ts">
-  import { invoke } from '@tauri-apps/api/core';
   import { t } from '$lib/i18n/engine';
   import { projectsStore, recentProjectsStore } from '$lib/stores/projectStore';
+  import { toastStore } from '$lib/stores/toastStore';
+  import { ipcGetProject } from '$lib/ipc/projects';
+  import { ipc } from '$lib/utils/ipc';
+  import { ipcParseManuscript, type ManuscriptChapter } from '$lib/ipc/parser';
   import type { ApiResponse } from '$lib/types';
+  import { PREVIEW_TABS, type PreviewTab } from '$lib/constants/ui-tabs';
 
   interface Annotation {
     id: string;
@@ -28,31 +32,83 @@
     onToggleCollapse,
   }: Props = $props();
 
-  type SidebarTab = 'chapters' | 'gallery' | 'projects';
-  let activeTab = $state<SidebarTab>('chapters');
+  let activeTab = $state<PreviewTab>(PREVIEW_TABS.CHAPTERS);
   let chaptersFilter = $state('');
 
   const project = $derived($projectsStore.current);
   const recentProjects = $derived($recentProjectsStore);
-  const chapters = $derived(project?.besRootPath ? [] : []); // populated from parsed manuscript store if available
+
+  let chapters = $state<ManuscriptChapter[]>([]);
+  let chaptersLoading = $state(false);
+  let chaptersError = $state<string | null>(null);
+
+  // Illustrations loaded via IPC
+  interface IllustrationEntry {
+    id: string;
+    chapterSlug: string;
+    altText: string;
+    status: string;
+    filePath?: string;
+  }
+
+  let illustrations = $state<IllustrationEntry[]>([]);
+  let illustrationsLoading = $state(false);
+  let illustrationsError = $state<string | null>(null);
+
+  async function loadChapters() {
+    if (!projectId) return;
+    chaptersLoading = true;
+    chaptersError = null;
+    try {
+      const manuscript = await ipcParseManuscript(projectId);
+      chapters = manuscript.chapters;
+    } catch (e) {
+      chaptersError = String(e);
+      toastStore.error(t('errors.generic'));
+    } finally {
+      chaptersLoading = false;
+    }
+  }
+
+  async function loadIllustrations() {
+    if (!projectId) return;
+    illustrationsLoading = true;
+    illustrationsError = null;
+    try {
+      const res = await ipc<ApiResponse<IllustrationEntry[]>>('list_illustrations', { projectId });
+      if (res.data) illustrations = res.data;
+    } catch (e) {
+      illustrationsError = String(e);
+      toastStore.error(t('errors.generic'));
+    } finally {
+      illustrationsLoading = false;
+    }
+  }
+
+  $effect(() => {
+    if (projectId) {
+      loadChapters();
+      loadIllustrations();
+    }
+  });
 
   // Annotations count per page for gallery tab
   let annotationsByPage = $state<Record<number, Annotation[]>>({});
 
   async function openProject(id: string) {
     try {
-      await invoke('get_project', { projectId: id });
+      await ipcGetProject(id);
     } catch (e) {
-      console.error('[PreviewSidebar] openProject error:', e);
+      toastStore.error(t('errors.generic'));
     }
   }
 
   const filteredChapters = $derived(
     chaptersFilter
-      ? (project as any)?.chapters?.filter((c: any) =>
+      ? chapters.filter((c) =>
           c.title.toLowerCase().includes(chaptersFilter.toLowerCase())
-        ) ?? []
-      : (project as any)?.chapters ?? []
+        )
+      : chapters
   );
 </script>
 
@@ -77,9 +133,9 @@
       <button
         role="tab"
         class="sidebar-tab"
-        class:active={activeTab === 'chapters'}
-        aria-selected={activeTab === 'chapters'}
-        onclick={() => (activeTab = 'chapters')}
+        class:active={activeTab === PREVIEW_TABS.CHAPTERS}
+        aria-selected={activeTab === PREVIEW_TABS.CHAPTERS}
+        onclick={() => (activeTab = PREVIEW_TABS.CHAPTERS)}
         title={t('preview.chaptersTab')}
       >
         📖
@@ -88,9 +144,9 @@
       <button
         role="tab"
         class="sidebar-tab"
-        class:active={activeTab === 'gallery'}
-        aria-selected={activeTab === 'gallery'}
-        onclick={() => (activeTab = 'gallery')}
+        class:active={activeTab === PREVIEW_TABS.GALLERY}
+        aria-selected={activeTab === PREVIEW_TABS.GALLERY}
+        onclick={() => (activeTab = PREVIEW_TABS.GALLERY)}
         title={t('preview.galleryTab')}
       >
         🖼
@@ -99,9 +155,9 @@
       <button
         role="tab"
         class="sidebar-tab"
-        class:active={activeTab === 'projects'}
-        aria-selected={activeTab === 'projects'}
-        onclick={() => (activeTab = 'projects')}
+        class:active={activeTab === PREVIEW_TABS.PROJECTS}
+        aria-selected={activeTab === PREVIEW_TABS.PROJECTS}
+        onclick={() => (activeTab = PREVIEW_TABS.PROJECTS)}
         title={t('preview.projectsTab')}
       >
         📁
@@ -112,7 +168,7 @@
     <!-- Tab content -->
     <div class="sidebar-content" role="tabpanel">
 
-      {#if activeTab === 'chapters'}
+      {#if activeTab === PREVIEW_TABS.CHAPTERS}
         <!-- Chapters panel -->
         <div class="panel panel-chapters">
           <div class="panel-search">
@@ -125,7 +181,18 @@
             />
           </div>
 
-          {#if filteredChapters.length === 0}
+          {#if chaptersLoading}
+            <div class="panel-loading" aria-busy="true" aria-label={t('common.loading')}>
+              {#each Array(5) as _}
+                <div class="skeleton-line"></div>
+              {/each}
+            </div>
+          {:else if chaptersError}
+            <div class="panel-error" role="alert">
+              <p class="panel-error__msg">{t('errors.generic')}</p>
+              <button class="panel-retry-btn" onclick={loadChapters}>{t('common.retry')}</button>
+            </div>
+          {:else if filteredChapters.length === 0}
             <div class="panel-empty">
               {chaptersFilter ? t('preview.noChaptersFound') : t('preview.noChapters')}
             </div>
@@ -153,13 +220,27 @@
           {/if}
         </div>
 
-      {:else if activeTab === 'gallery'}
+      {:else if activeTab === PREVIEW_TABS.GALLERY}
         <!-- Illustration gallery panel -->
         <div class="panel panel-gallery">
           {#if !project}
             <div class="panel-empty">{t('preview.openProjectFirst')}</div>
-          {:else}
+          {:else if illustrationsLoading}
+            <div class="panel-empty">{t('preview.loading')}</div>
+          {:else if illustrations.length === 0}
             <div class="panel-empty">{t('preview.noIllustrations')}</div>
+          {:else}
+            <ul class="illustration-list" role="list">
+              {#each illustrations as illus (illus.id)}
+                <li class="illustration-item">
+                  <span class="illus-icon">🖼</span>
+                  <span class="illus-text">{illus.altText || illus.chapterSlug}</span>
+                  <span class="illus-badge illus-badge--{illus.status.toLowerCase()}">
+                    {illus.status}
+                  </span>
+                </li>
+              {/each}
+            </ul>
           {/if}
         </div>
 
@@ -197,20 +278,20 @@
     <div class="collapsed-tabs">
       <button
         class="collapsed-tab"
-        class:active={activeTab === 'chapters'}
-        onclick={() => { activeTab = 'chapters'; onToggleCollapse(); }}
+        class:active={activeTab === PREVIEW_TABS.CHAPTERS}
+        onclick={() => { activeTab = PREVIEW_TABS.CHAPTERS; onToggleCollapse(); }}
         title={t('preview.chapters')}
       >📖</button>
       <button
         class="collapsed-tab"
-        class:active={activeTab === 'gallery'}
-        onclick={() => { activeTab = 'gallery'; onToggleCollapse(); }}
+        class:active={activeTab === PREVIEW_TABS.GALLERY}
+        onclick={() => { activeTab = PREVIEW_TABS.GALLERY; onToggleCollapse(); }}
         title={t('preview.gallery')}
       >🖼</button>
       <button
         class="collapsed-tab"
-        class:active={activeTab === 'projects'}
-        onclick={() => { activeTab = 'projects'; onToggleCollapse(); }}
+        class:active={activeTab === PREVIEW_TABS.PROJECTS}
+        onclick={() => { activeTab = PREVIEW_TABS.PROJECTS; onToggleCollapse(); }}
         title={t('preview.projects')}
       >📁</button>
     </div>
@@ -332,6 +413,56 @@
     text-align: center;
   }
 
+  .panel-loading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+  }
+
+  .skeleton-line {
+    height: 24px;
+    border-radius: var(--radius-sm);
+    background: var(--color-skeleton);
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .panel-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-6) var(--space-4);
+    text-align: center;
+  }
+
+  .panel-error__msg {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+
+  .panel-retry-btn {
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--color-primary);
+    background: transparent;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-family: var(--font-sans);
+  }
+
+  .panel-retry-btn:hover {
+    background: var(--color-accent);
+  }
+
   .chapter-list,
   .project-list {
     list-style: none;
@@ -389,6 +520,59 @@
     padding: 1px 4px;
     border-radius: var(--radius-sm);
     flex-shrink: 0;
+  }
+
+  /* Illustration list */
+  .illustration-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .illustration-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+  }
+
+  .illus-icon {
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+
+  .illus-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text);
+  }
+
+  .illus-badge {
+    flex-shrink: 0;
+    font-size: var(--text-xs);
+    padding: 1px 5px;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .illus-badge--linked {
+    background: color-mix(in srgb, var(--color-success) 15%, transparent);
+    color: var(--color-success);
+  }
+
+  .illus-badge--pending {
+    background: color-mix(in srgb, var(--color-warning) 15%, transparent);
+    color: var(--color-warning);
+  }
+
+  .illus-badge--missing {
+    background: color-mix(in srgb, var(--color-error) 15%, transparent);
+    color: var(--color-error);
   }
 
   /* Collapsed state */

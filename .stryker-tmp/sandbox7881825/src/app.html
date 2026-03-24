@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- @ASSET_PLACEHOLDER
+    name: favicon
+    type: image
+    extension: ico
+    format: 1:1
+    dimensions: 32x32
+    description: Favicon do BES Book Formatter para barra de título e taskbar. Ícone minimalista representando um livro aberto com tipografia editorial. Deve ser reconhecível em tamanho pequeno.
+    context: Browser/Tauri window title bar, taskbar
+    style: Minimalista, outline, monocromatico
+    mood: Editorial, profissional
+    colors: primary (#991B1B), surface (#FFFFFF)
+    elements: Livro aberto estilizado ou iniciais BBF
+    avoid: Excesso de detalhe, gradientes
+    -->
+
+    <!-- Anti-flash de tema: lê preferência antes do primeiro render -->
+    <script>
+// @ts-nocheck
+
+      (function () {
+        try {
+          const saved = localStorage.getItem('bes_theme');
+          const theme = saved === 'dark' || saved === 'light'
+            ? saved
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    
+</script>
+
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>

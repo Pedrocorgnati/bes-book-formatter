@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- BES Book Formatter — Fleuron ornament (❦ typographic floral heart) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60" width="120" height="60"
+     role="img" aria-hidden="true">
+  <text
+    x="60" y="48"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="48"
+    fill="#333333">&#x2766;</text>
+</svg>

@@ -6,6 +6,7 @@ interface ProjectsState {
   list: BookProject[];
   current: BookProject | null;
   loading: boolean;
+  error: string | null;
 }
 
 function createProjectsStore() {
@@ -13,6 +14,7 @@ function createProjectsStore() {
     list: [],
     current: null,
     loading: true,
+    error: null,
   });
 
   return {
@@ -36,8 +38,11 @@ function createProjectsStore() {
     setLoading(loading: boolean) {
       update(s => ({ ...s, loading }));
     },
+    setError(error: string | null) {
+      update(s => ({ ...s, error }));
+    },
     reset() {
-      set({ list: [], current: null, loading: false });
+      set({ list: [], current: null, loading: false, error: null });
     },
   };
 }

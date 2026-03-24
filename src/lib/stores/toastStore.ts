@@ -1,5 +1,6 @@
 // toastStore.ts — sistema de notificações toast
 import { writable } from 'svelte/store';
+import { TIMING, MAX_VISIBLE_TOASTS } from '$lib/constants/timing';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -15,40 +16,43 @@ function createToastStore() {
   const { subscribe, update } = writable<Toast[]>([]);
 
   let counter = 0;
+  const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
   function add(toast: Omit<Toast, 'id'>): string {
     const id = `toast-${++counter}`;
     update(list => {
-      // Máximo 3 toasts visíveis
-      const trimmed = list.length >= 3 ? list.slice(1) : list;
+      const trimmed = list.length >= MAX_VISIBLE_TOASTS ? list.slice(1) : list;
       return [...trimmed, { ...toast, id }];
     });
 
     // Auto-dismiss (exceto toasts persistentes)
     if (toast.duration > 0) {
-      setTimeout(() => remove(id), toast.duration);
+      const timer = setTimeout(() => { timers.delete(id); remove(id); }, toast.duration);
+      timers.set(id, timer);
     }
 
     return id;
   }
 
   function remove(id: string): void {
+    const timer = timers.get(id);
+    if (timer !== undefined) { clearTimeout(timer); timers.delete(id); }
     update(list => list.filter(t => t.id !== id));
   }
 
-  function success(message: string, duration = 4000): string {
+  function success(message: string, duration = TIMING.TOAST_SUCCESS): string {
     return add({ type: 'success', message, duration, dismissible: false });
   }
 
-  function error(message: string, duration = 0): string {
+  function error(message: string, duration = TIMING.TOAST_ERROR_PERSISTENT): string {
     return add({ type: 'error', message, duration, dismissible: true });
   }
 
-  function warning(message: string, duration = 6000): string {
+  function warning(message: string, duration = TIMING.TOAST_WARNING): string {
     return add({ type: 'warning', message, duration, dismissible: true });
   }
 
-  function info(message: string, duration = 4000): string {
+  function info(message: string, duration = TIMING.TOAST_INFO): string {
     return add({ type: 'info', message, duration, dismissible: false });
   }
 
@@ -56,3 +60,4 @@ function createToastStore() {
 }
 
 export const toast = createToastStore();
+export const toastStore = toast; // Alias para compatibilidade

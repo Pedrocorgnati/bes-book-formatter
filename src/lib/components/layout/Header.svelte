@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
   import ThemeToggle from '$lib/components/ui/ThemeToggle.svelte';
   import LanguageSelector from '$lib/components/ui/LanguageSelector.svelte';
   import { t } from '$lib/i18n/engine';
   import { projectsStore } from '$lib/stores/projectStore';
+  import { ROUTES } from '$lib/constants/routes';
 
   interface Props {
     breadcrumb?: string;
@@ -13,7 +15,7 @@
   let {
     breadcrumb = '',
     showImportCta = false,
-    onImportClick
+    onImportClick = () => goto(ROUTES.IMPORT),
   }: Props = $props();
 
   const project = $derived($projectsStore.current);
@@ -35,13 +37,13 @@
   elements: Tipografia, possível ícone de livro aberto
   avoid: Ícone complexo, gradientes, muitas cores
   -->
-  <span class="header-brand" aria-label="BES Book Formatter">
+  <span class="header-brand" aria-label={t('a11y.logoAlt')}>
     <span class="header-brand__bes">BES</span>
     <span class="header-brand__rest"> Book Formatter</span>
   </span>
 </div>
 
-<div data-testid="header-breadcrumb" class="header-breadcrumb" aria-label="Localização atual">
+<div data-testid="header-breadcrumb" class="header-breadcrumb" aria-label={t('a11y.breadcrumb')}>
   {#if project}
     <span class="breadcrumb-project">{project.name}</span>
     {#if breadcrumb}

@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { t } from '$lib/i18n/engine';
   import { projectsStore, recentProjectsStore } from '$lib/stores/projectStore';
+  import { ROUTES, PROJECT_ROUTES } from '$lib/constants/routes';
 
   const currentProject = $derived($projectsStore.current);
   const recentProjects = $derived($recentProjectsStore);
@@ -15,7 +16,7 @@
 
   function handleImport() {
     // TODO: Rock-1 implementa lógica real de importação
-    goto('/import');
+    goto(ROUTES.IMPORT);
   }
 </script>
 
@@ -25,22 +26,22 @@
     <h2 class="sidebar__section-title">{t('nav.recentProjects')}</h2>
 
     {#if loading}
-      <div class="sidebar__skeleton" aria-busy="true" aria-label="Carregando projetos">
+      <div class="sidebar__skeleton" aria-busy="true" aria-label={t('common.loading')}>
         <div class="skeleton-item"></div>
         <div class="skeleton-item" style="width: 80%"></div>
         <div class="skeleton-item" style="width: 65%"></div>
       </div>
     {:else if recentProjects.length === 0}
-      <p class="sidebar__empty-msg">Nenhum projeto aberto</p>
+      <p class="sidebar__empty-msg">{t('emptyState.noProjectSelected')}</p>
     {:else}
-      <ul data-testid="sidebar-project-list" class="sidebar__project-list" aria-label="Projetos recentes">
+      <ul data-testid="sidebar-project-list" class="sidebar__project-list" aria-label={t('nav.recentProjects')}>
         {#each recentProjects as proj (proj.id)}
           <li>
             <button
               data-testid="sidebar-project-item-{proj.id}"
               class="sidebar__project-item"
               class:sidebar__item--active={currentProject?.id === proj.id}
-              onclick={() => goto(`/project/${proj.id}`)}
+              onclick={() => goto(PROJECT_ROUTES.ROOT(proj.id))}
               aria-current={currentProject?.id === proj.id ? 'page' : undefined}
             >
               <svg class="sidebar__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -55,7 +56,7 @@
     {/if}
 
     <!-- Botão Novo Projeto -->
-    <button data-testid="sidebar-new-project-button" class="sidebar__new-btn" onclick={handleImport} aria-label="Importar novo projeto BES">
+    <button data-testid="sidebar-new-project-button" class="sidebar__new-btn" onclick={handleImport} aria-label={t('emptyState.importCta')}>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
         <line x1="12" y1="5" x2="12" y2="19"/>
         <line x1="5" y1="12" x2="19" y2="12"/>
@@ -69,7 +70,7 @@
 
   <!-- Seção: Sub-rotas do projeto ativo (desabilitadas se sem projeto) -->
   <section class="sidebar__section">
-    <nav aria-label="Seções do projeto">
+    <nav aria-label={t('a11y.projectNav')}>
       <ul data-testid="sidebar-nav-list" class="sidebar__nav-list">
         <!-- Tipografia — Rock-2 -->
         <li>
@@ -78,7 +79,8 @@
             class="sidebar__nav-item"
             class:sidebar__item--active={currentProject && isActive(`/project/${currentProject.id}/typography`)}
             class:sidebar__item--disabled={!currentProject}
-            onclick={() => currentProject && goto(`/project/${currentProject.id}/typography`)}
+            onclick={() => currentProject && goto(PROJECT_ROUTES.TYPOGRAPHY(currentProject.id))}
+            disabled={!currentProject || undefined}
             aria-disabled={!currentProject}
             title={!currentProject ? t('nav.openProjectFirst') : t('nav.typography')}
           >
@@ -101,7 +103,8 @@
             class="sidebar__nav-item"
             class:sidebar__item--active={currentProject && isActive(`/project/${currentProject.id}/illustrations`)}
             class:sidebar__item--disabled={!currentProject}
-            onclick={() => currentProject && goto(`/project/${currentProject.id}/illustrations`)}
+            onclick={() => currentProject && goto(PROJECT_ROUTES.ILLUSTRATIONS(currentProject.id))}
+            disabled={!currentProject || undefined}
             aria-disabled={!currentProject}
             title={!currentProject ? t('nav.openProjectFirst') : t('nav.illustrations')}
           >
@@ -121,7 +124,8 @@
             class="sidebar__nav-item"
             class:sidebar__item--active={currentProject && isActive(`/project/${currentProject.id}/output`)}
             class:sidebar__item--disabled={!currentProject}
-            onclick={() => currentProject && goto(`/project/${currentProject.id}/output`)}
+            onclick={() => currentProject && goto(PROJECT_ROUTES.OUTPUT(currentProject.id))}
+            disabled={!currentProject || undefined}
             aria-disabled={!currentProject}
             title={!currentProject ? t('nav.openProjectFirst') : t('nav.generate')}
           >
@@ -141,7 +145,8 @@
             class="sidebar__nav-item"
             class:sidebar__item--active={currentProject && isActive(`/project/${currentProject.id}/preview`)}
             class:sidebar__item--disabled={!currentProject}
-            onclick={() => currentProject && goto(`/project/${currentProject.id}/preview`)}
+            onclick={() => currentProject && goto(PROJECT_ROUTES.PREVIEW(currentProject.id))}
+            disabled={!currentProject || undefined}
             aria-disabled={!currentProject}
             title={!currentProject ? t('nav.openProjectFirst') : t('nav.preview')}
           >
@@ -160,7 +165,8 @@
             class="sidebar__nav-item"
             class:sidebar__item--active={currentProject && isActive(`/project/${currentProject.id}/cover`)}
             class:sidebar__item--disabled={!currentProject}
-            onclick={() => currentProject && goto(`/project/${currentProject.id}/cover`)}
+            onclick={() => currentProject && goto(PROJECT_ROUTES.COVER(currentProject.id))}
+            disabled={!currentProject || undefined}
             aria-disabled={!currentProject}
             title={!currentProject ? t('nav.openProjectFirst') : t('nav.cover')}
           >
@@ -169,6 +175,26 @@
               <line x1="9" y1="3" x2="9" y2="21"/>
             </svg>
             <span>{t('nav.cover')}</span>
+          </button>
+        </li>
+
+        <!-- Integração BES — Rock-5 -->
+        <li>
+          <button
+            data-testid="sidebar-nav-item-integration"
+            class="sidebar__nav-item"
+            class:sidebar__item--active={currentProject && isActive(`/project/${currentProject.id}/integration`)}
+            class:sidebar__item--disabled={!currentProject}
+            onclick={() => currentProject && goto(PROJECT_ROUTES.INTEGRATION(currentProject.id))}
+            disabled={!currentProject || undefined}
+            aria-disabled={!currentProject}
+            title={!currentProject ? t('nav.openProjectFirst') : t('nav.integration')}
+          >
+            <svg class="sidebar__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            <span>{t('nav.integration')}</span>
           </button>
         </li>
       </ul>
@@ -185,8 +211,9 @@
         <button
           data-testid="sidebar-nav-item-marketplace"
           class="sidebar__nav-item sidebar__item--disabled"
+          disabled
           aria-disabled="true"
-          title="Marketplace — Rock-7 (em breve)"
+          title={t('nav.marketplaceCombined')}
         >
           <svg class="sidebar__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -194,7 +221,7 @@
             <path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
           <span>{t('nav.marketplace')}</span>
-          <span class="badge-soon" aria-label="em breve">{t('nav.marketplaceSoon')}</span>
+          <span class="badge-soon" aria-label={t('nav.marketplaceSoon')}>{t('nav.marketplaceSoon')}</span>
         </button>
       </li>
     </ul>
@@ -206,8 +233,8 @@
       data-testid="sidebar-nav-item-settings"
       class="sidebar__nav-item"
       class:sidebar__item--active={isActive('/settings')}
-      onclick={() => goto('/settings')}
-      aria-label="Ir para configurações"
+      onclick={() => goto(ROUTES.SETTINGS)}
+      aria-label={t('nav.goToSettings')}
     >
       <svg class="sidebar__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <circle cx="12" cy="12" r="3"/>
@@ -299,8 +326,10 @@
     font-weight: 500;
   }
 
-  /* Item desabilitado */
-  .sidebar__item--disabled {
+  /* Item desabilitado — cobre aria-disabled visual e disabled nativo */
+  .sidebar__item--disabled,
+  .sidebar__nav-item:disabled,
+  .sidebar__project-item:disabled {
     opacity: 0.4;
     cursor: not-allowed;
     pointer-events: none;

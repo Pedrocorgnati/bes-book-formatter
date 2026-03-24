@@ -1,13 +1,7 @@
 <script lang="ts">
   import { t } from '$lib/i18n/engine';
-
-  interface TypoIssue {
-    issueType: string;     // "orphan" | "widow"
-    pageNumber: number;
-    lineText: string;
-    lineYPercent: number;
-    severity: string;
-  }
+  import type { LayoutIssue as TypoIssue } from '$lib/types/interfaces';
+  import { TypoIssueType } from '$lib/types/enums';
 
   interface Props {
     issues: TypoIssue[];
@@ -38,10 +32,10 @@
       <div
         class="typo-highlight typo-{issue.issueType}"
         style="top:{issue.lineYPercent}%; width:100%; height:1.5em;"
-        title="{issue.issueType === 'orphan' ? t('preview.orphan') : t('preview.widow')}: {issue.lineText}"
+        title="{issue.issueType === TypoIssueType.ORPHAN ? t('preview.orphan') : t('preview.widow')}: {issue.lineText}"
       >
         <span class="typo-badge">
-          ⚠ {issue.issueType === 'orphan' ? t('preview.orphan') : t('preview.widow')}
+          ⚠ {issue.issueType === TypoIssueType.ORPHAN ? t('preview.orphan') : t('preview.widow')}
         </span>
       </div>
     {/each}

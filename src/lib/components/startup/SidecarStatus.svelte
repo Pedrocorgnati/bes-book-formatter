@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { t } from '$lib/i18n/engine';
   import type { SidecarStatus } from '$lib/types/interfaces';
+  import { TIMING } from '$lib/constants/timing';
 
   let dismissed = $state(false);
   let status = $state<SidecarStatus | null>(null);
@@ -10,7 +11,7 @@
   onMount(async () => {
     // TODO: Rock implementa verificação real via IPC
     // stub: simula verificação rápida
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, TIMING.SIDECAR_STARTUP_WAIT));
     status = {
       typst: { name: 'Typst', version: null, available: false },
       ghostscript: { name: 'Ghostscript', version: null, available: false },
@@ -51,7 +52,7 @@
       {:else}
         <span class="sidecar-item sidecar-item--warn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          {t('sidecar.typst')} — não encontrado
+          {t('sidecar.typst')} — {t('sidecar.unavailableShort')}
         </span>
       {/if}
 
@@ -64,7 +65,7 @@
       {:else}
         <span class="sidecar-item sidecar-item--warn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          {t('sidecar.ghostscript')} — não encontrado
+          {t('sidecar.ghostscript')} — {t('sidecar.unavailableShort')}
         </span>
       {/if}
 
@@ -77,12 +78,12 @@
       {:else}
         <span class="sidecar-item sidecar-item--warn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          {t('sidecar.epubcheck')} — não encontrado
+          {t('sidecar.epubcheck')} — {t('sidecar.unavailableShort')}
         </span>
       {/if}
     </div>
 
-    <button data-testid="sidecar-dismiss-button" class="sidecar-banner__dismiss" onclick={dismiss} aria-label="Dispensar aviso de sidecars">
+    <button data-testid="sidecar-dismiss-button" class="sidecar-banner__dismiss" onclick={dismiss} aria-label={t('sidecar.dismissSidecars')}>
       {t('sidecar.dismiss')}
     </button>
   </div>

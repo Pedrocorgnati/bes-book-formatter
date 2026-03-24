@@ -22,7 +22,13 @@
     "editor": "Editor",
     "output": "Salida",
     "goToSettings": "Ir a configuraciones",
-    "marketplaceCombined": "Marketplace (proximamente)"
+    "marketplaceCombined": "Marketplace (proximamente)",
+    "integration": "Integración BES"
+  },
+  "integration": {
+    "description": "Gestione la integración con el workspace BES y siga el progreso editorial.",
+    "emptyTitle": "Workspace BES no configurado",
+    "emptyDesc": "Configure la ruta del workspace BES en la configuración del proyecto para habilitar la integración."
   },
   "header": {
     "toggleTheme": "Cambiar tema",
@@ -157,7 +163,10 @@
     "retry": "Reintentar",
     "noData": "No hay datos disponibles.",
     "version": "Versión {version}",
-    "comingSoon": "Esta funcionalidad estará disponible próximamente."
+    "comingSoon": "Esta funcionalidad estará disponible próximamente.",
+    "saved": "Guardado con éxito.",
+    "deleted": "Eliminado con éxito.",
+    "errorGeneric": "Ocurrió un error. Inténtelo de nuevo."
   },
   "typography": {
     "pageSubtitle": "Configure fuentes, espaciado y estilo tipográfico del libro.",
@@ -241,7 +250,9 @@
     "ariaRemoveFont": "Eliminar fuente: {name}",
     "customDimensions": "Dimensiones personalizadas",
     "pageWidthLabel": "Ancho de página en pulgadas",
-    "pageHeightLabel": "Alto de página en pulgadas"
+    "pageHeightLabel": "Alto de página en pulgadas",
+    "fontSizeRangeError": "El tamaño de fuente debe estar entre 8 y 48pt.",
+    "orphanWidowRangeError": "El valor debe estar entre 1 y 6 líneas."
   },
   "illustrations": {
     "pageSubtitle": "Gestione las ilustraciones del libro — importe, valide DPI y configure alt-text.",
@@ -375,7 +386,10 @@
     "manualTab": "Manual",
     "presetTab": "Preset",
     "historyLoadError": "Error al cargar el historial de generaciones",
-    "selectAtLeastOne": "Selecciona al menos un formato para continuar."
+    "selectAtLeastOne": "Selecciona al menos un formato para continuar.",
+    "preflightError": "Preflight fallido",
+    "generateFormatError": "Error al generar formato",
+    "partialError": "Uno o más formatos fallaron"
   },
   "preview": {
     "sidebarLabel": "Panel lateral de navegación",
@@ -433,7 +447,106 @@
     "annotationContent": "Contenido",
     "annotationPlaceholder": "Escribe tu anotación...",
     "annotationColor": "Color",
-    "annotation": "Anotación"
+    "annotation": "Anotación",
+    "toolbarLabel": "Barra de herramientas del preview",
+    "prevPage": "Página anterior",
+    "nextPage": "Página siguiente",
+    "pageInputLabel": "Número de página",
+    "ofPages": "de {total}",
+    "zoom": "Zoom",
+    "fitPage": "Ajustar a la página",
+    "spreadMode": "Modo doble página",
+    "spread": "Doble página",
+    "ruler": "Regla",
+    "checkOrphans": "Verificar huérfanas",
+    "renderTime": "Tiempo de renderización",
+    "annotationContentRequired": "Ingrese contenido para el comentario."
+  },
+  "bes": {
+    "statusPanel": {
+      "title": "Integración BES",
+      "checking": "Verificando workspace…",
+      "valid": "Workspace BES válido",
+      "warning": "Workspace con avisos",
+      "error": "Workspace inválido",
+      "idle": "Esperando workspace…",
+      "recheck": "Reverificar",
+      "missingFiles": "Archivos ausentes",
+      "workspacePathMissing": "Ruta del workspace no proporcionada."
+    },
+    "metadata": {
+      "title": "Título",
+      "author": "Autor",
+      "genre": "Género",
+      "language": "Idioma",
+      "isbn": "ISBN",
+      "publisher": "Editorial"
+    },
+    "progress": {
+      "title": "Progreso Editorial",
+      "sync": "Sincronizar",
+      "syncing": "Sincronizando…",
+      "loading": "Cargando progreso editorial…",
+      "error": "Error al cargar progreso",
+      "empty": "Workspace no vinculado o sin progreso registrado.",
+      "updated": "Actualizado"
+    },
+    "settings": {
+      "integrationTab": "Integración BES",
+      "progressTab": "Progreso Editorial"
+    }
+  },
+  "cover": {
+    "spine": {
+      "title": "Ancho del Lomo",
+      "pages": "Páginas",
+      "platform": "Plataforma",
+      "paper": "Papel",
+      "width": "Ancho",
+      "hint": "Genere el PDF del interior primero para calcular el lomo con precisión.",
+      "calculating": "Calculando…",
+      "recalculate": "Recalcular",
+      "platformKdp": "Amazon KDP",
+      "platformIngram": "IngramSpark",
+      "platformGeneric": "Genérica",
+      "paperWhite": "Blanco",
+      "paperCream": "Crema"
+    },
+    "editor": {
+      "tabTemplates": "Plantillas",
+      "tabTexts": "Textos",
+      "tabDesign": "Diseño",
+      "platform": "Plataforma",
+      "platformGeneric": "Genérica",
+      "paper": "Papel",
+      "paperWhite": "Blanco",
+      "paperCream": "Crema",
+      "titleOverride": "Título (sobrescribe el nombre del proyecto)",
+      "titleOverridePlaceholder": "Deje vacío para usar el nombre del proyecto",
+      "subtitle": "Subtítulo",
+      "subtitlePlaceholder": "Opcional",
+      "author": "Autor(a)",
+      "authorPlaceholder": "Nombre del autor(a)",
+      "backCoverText": "Texto de la contraportada",
+      "backCoverPlaceholder": "Sinopsis, sobre el autor, ISBN…",
+      "primaryColor": "Color primario",
+      "primaryColorHex": "Valor hex del color primario",
+      "secondaryColor": "Color secundario",
+      "secondaryColorHex": "Valor hex del color secundario",
+      "fontTitle": "Fuente del título",
+      "fontAuthor": "Fuente del autor",
+      "preview": "Previsualizar",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "templateApplied": "Plantilla \"{name}\" aplicada.",
+      "configSaved": "Configuración de portada guardada.",
+      "invalidHexColor": "Color inválido. Use el formato #RRGGBB.",
+      "colorsLegend": "Colores de portada"
+    },
+    "preview": {
+      "saveFirst": "Guarde la configuración de portada antes de previsualizar.",
+      "saveBeforeExport": "Guarde la configuración de portada antes de exportar."
+    }
   },
   "a11y": {
     "skipNav": "Ir al contenido",

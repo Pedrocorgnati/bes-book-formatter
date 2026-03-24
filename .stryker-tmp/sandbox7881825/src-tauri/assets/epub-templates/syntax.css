@@ -1,0 +1,36 @@
+/* BES Book Formatter — EPUB Syntax Highlighting Stylesheet
+ *
+ * syntect outputs inline `style="color:#..."` attributes on each <span>.
+ * This stylesheet provides structural/container styles only.
+ * Imported after styles.css in the EPUB manifest.
+ *
+ * If a reader strips inline styles, the code block remains readable
+ * via the monospace font and background defined in styles.css.
+ */
+
+/* Container already styled in styles.css — additional overrides here */
+
+pre.code-block code {
+  font-family: inherit;
+  background: transparent;
+  padding: 0;
+  border: none;
+}
+
+/* Spans from syntect — preserve weight/style in case renderer ignores inline */
+pre.code-block span {
+  font-family: inherit;
+}
+
+/* Keyword */
+pre.code-block .kw { font-weight: bold; }
+
+/* String literals — italic hint for monochrome readers */
+pre.code-block .s,
+pre.code-block .s1,
+pre.code-block .s2 { font-style: italic; }
+
+/* Comments — lighter in monochrome */
+pre.code-block .c,
+pre.code-block .c1,
+pre.code-block .cm { opacity: 0.65; }

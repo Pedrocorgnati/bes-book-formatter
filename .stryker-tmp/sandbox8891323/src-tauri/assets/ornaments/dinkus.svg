@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- BES Book Formatter — Dinkus ornament (• • •) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 24" width="120" height="24"
+     role="img" aria-hidden="true">
+  <circle cx="36" cy="12" r="4" fill="#444444"/>
+  <circle cx="60" cy="12" r="4" fill="#444444"/>
+  <circle cx="84" cy="12" r="4" fill="#444444"/>
+</svg>

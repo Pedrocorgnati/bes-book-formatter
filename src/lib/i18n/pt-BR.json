@@ -22,7 +22,13 @@
     "editor": "Editor",
     "output": "Saída",
     "goToSettings": "Ir para configuracoes",
-    "marketplaceCombined": "Marketplace (em breve)"
+    "marketplaceCombined": "Marketplace (em breve)",
+    "integration": "Integração BES"
+  },
+  "integration": {
+    "description": "Gerencie a integração com o workspace BES e acompanhe o progresso editorial.",
+    "emptyTitle": "Workspace BES não configurado",
+    "emptyDesc": "Configure o caminho do workspace BES nas configurações do projeto para habilitar a integração."
   },
   "header": {
     "toggleTheme": "Alternar tema",
@@ -81,7 +87,7 @@
     "dbUnavailable": "Banco de dados indisponível.",
     "prefSave": "Falha ao salvar preferência. Tente novamente.",
     "sidecarMissing": "{name} não encontrado. Instale para habilitar esta funcionalidade.",
-    "code": "Codigo: {code}"
+    "code": "Código: {code}"
   },
   "sidecar": {
     "checking": "Verificando sidecars...",
@@ -93,7 +99,7 @@
     "ghostscript": "Ghostscript",
     "epubcheck": "EPUBCheck",
     "warningBanner": "{name} não encontrado. Instale para habilitar geração de PDF.",
-    "unavailableShort": "nao encontrado",
+    "unavailableShort": "não encontrado",
     "dismissSidecars": "Dispensar aviso de sidecars"
   },
   "import": {
@@ -157,7 +163,10 @@
     "retry": "Tentar Novamente",
     "noData": "Nenhum dado disponível.",
     "version": "Versão {version}",
-    "comingSoon": "Esta funcionalidade estará disponível em breve."
+    "comingSoon": "Esta funcionalidade estará disponível em breve.",
+    "saved": "Salvo com sucesso.",
+    "deleted": "Removido com sucesso.",
+    "errorGeneric": "Ocorreu um erro. Tente novamente."
   },
   "typography": {
     "pageSubtitle": "Configure fontes, espaçamento e estilo tipográfico do livro.",
@@ -241,7 +250,9 @@
     "ariaRemoveFont": "Remover fonte: {name}",
     "customDimensions": "Dimensões personalizadas",
     "pageWidthLabel": "Largura da página em polegadas",
-    "pageHeightLabel": "Altura da página em polegadas"
+    "pageHeightLabel": "Altura da página em polegadas",
+    "fontSizeRangeError": "Tamanho de fonte deve estar entre 8 e 48pt.",
+    "orphanWidowRangeError": "O valor deve estar entre 1 e 6 linhas."
   },
   "illustrations": {
     "pageSubtitle": "Gerencie as ilustrações do livro — importe, valide DPI e configure alt-text.",
@@ -375,7 +386,10 @@
     "manualTab": "Manual",
     "presetTab": "Preset",
     "historyLoadError": "Erro ao carregar histórico de gerações",
-    "selectAtLeastOne": "Selecione ao menos um formato para continuar."
+    "selectAtLeastOne": "Selecione ao menos um formato para continuar.",
+    "preflightError": "Preflight falhou",
+    "generateFormatError": "Erro ao gerar formato",
+    "partialError": "Um ou mais formatos falharam"
   },
   "preview": {
     "sidebarLabel": "Painel lateral de navegação",
@@ -416,6 +430,7 @@
     "moreIssues": "problemas adicionais",
     "detecting": "Verificando...",
     "checkOrphansWidows": "Verificar Órfãs/Viúvas",
+    "typoDetectionError": "Erro ao verificar problemas tipográficos.",
     "layoutLabel": "Visualizador de preview",
     "viewerLabel": "Visualizador de páginas",
     "loading": "Carregando preview...",
@@ -433,7 +448,106 @@
     "annotationContent": "Conteúdo",
     "annotationPlaceholder": "Digite sua anotação...",
     "annotationColor": "Cor",
-    "annotation": "Anotação"
+    "annotation": "Anotação",
+    "toolbarLabel": "Barra de ferramentas do preview",
+    "prevPage": "Página anterior",
+    "nextPage": "Próxima página",
+    "pageInputLabel": "Número da página",
+    "ofPages": "de {total}",
+    "zoom": "Zoom",
+    "fitPage": "Ajustar à página",
+    "spreadMode": "Modo espelhado",
+    "spread": "Espelhado",
+    "ruler": "Régua",
+    "checkOrphans": "Verificar órfãs",
+    "renderTime": "Tempo de renderização",
+    "annotationContentRequired": "Digite um conteúdo para o comentário."
+  },
+  "bes": {
+    "statusPanel": {
+      "title": "Integração BES",
+      "checking": "Verificando workspace…",
+      "valid": "Workspace BES válido",
+      "warning": "Workspace com avisos",
+      "error": "Workspace inválido",
+      "idle": "Aguardando workspace…",
+      "recheck": "Reverificar",
+      "missingFiles": "Arquivos ausentes",
+      "workspacePathMissing": "Caminho do workspace não informado."
+    },
+    "metadata": {
+      "title": "Título",
+      "author": "Autor",
+      "genre": "Gênero",
+      "language": "Idioma",
+      "isbn": "ISBN",
+      "publisher": "Editora"
+    },
+    "progress": {
+      "title": "Progresso Editorial",
+      "sync": "Sincronizar",
+      "syncing": "Sincronizando…",
+      "loading": "Carregando progresso editorial…",
+      "error": "Erro ao carregar progresso",
+      "empty": "Workspace não vinculado ou sem progresso registrado.",
+      "updated": "Atualizado"
+    },
+    "settings": {
+      "integrationTab": "Integração BES",
+      "progressTab": "Progresso Editorial"
+    }
+  },
+  "cover": {
+    "spine": {
+      "title": "Largura da Lombada",
+      "pages": "Páginas",
+      "platform": "Plataforma",
+      "paper": "Papel",
+      "width": "Largura",
+      "hint": "Gere o PDF do miolo primeiro para calcular a lombada com precisão.",
+      "calculating": "Calculando…",
+      "recalculate": "Recalcular",
+      "platformKdp": "Amazon KDP",
+      "platformIngram": "IngramSpark",
+      "platformGeneric": "Genérica",
+      "paperWhite": "Branco",
+      "paperCream": "Creme"
+    },
+    "editor": {
+      "tabTemplates": "Templates",
+      "tabTexts": "Textos",
+      "tabDesign": "Design",
+      "platform": "Plataforma",
+      "platformGeneric": "Genérica",
+      "paper": "Papel",
+      "paperWhite": "Branco",
+      "paperCream": "Creme",
+      "titleOverride": "Título (sobrescreve o nome do projeto)",
+      "titleOverridePlaceholder": "Deixe vazio para usar o nome do projeto",
+      "subtitle": "Subtítulo",
+      "subtitlePlaceholder": "Opcional",
+      "author": "Autor(a)",
+      "authorPlaceholder": "Nome do(a) autor(a)",
+      "backCoverText": "Texto do verso",
+      "backCoverPlaceholder": "Sinopse, sobre o autor, ISBN…",
+      "primaryColor": "Cor primária",
+      "primaryColorHex": "Valor hex da cor primária",
+      "secondaryColor": "Cor secundária",
+      "secondaryColorHex": "Valor hex da cor secundária",
+      "fontTitle": "Fonte do título",
+      "fontAuthor": "Fonte do autor",
+      "preview": "Visualizar",
+      "save": "Salvar",
+      "saving": "Salvando…",
+      "templateApplied": "Template \"{name}\" aplicado.",
+      "configSaved": "Configuração de capa salva.",
+      "invalidHexColor": "Cor inválida. Use o formato #RRGGBB.",
+      "colorsLegend": "Cores da capa"
+    },
+    "preview": {
+      "saveFirst": "Salve a configuração de capa antes de visualizar.",
+      "saveBeforeExport": "Salve a configuração de capa antes de exportar."
+    }
   },
   "a11y": {
     "skipNav": "Ir para o conteudo",
@@ -445,10 +559,10 @@
     "mainContent": "Conteudo principal",
     "propertiesPanel": "Painel de propriedades",
     "rightPanel": "Painel de propriedades",
-    "notifications": "Notificacoes",
-    "closeNotification": "Fechar notificacao",
+    "notifications": "Notificações",
+    "closeNotification": "Fechar notificação",
     "closeModal": "Fechar modal",
-    "breadcrumb": "Localizacao atual",
+    "breadcrumb": "Localização atual",
     "selectLanguage": "Selecionar idioma da interface",
     "logoAlt": "BES Book Formatter",
     "projectNav": "Secoes do projeto"

@@ -1,6 +1,7 @@
 // engine.ts — Motor de i18n para BES Book Formatter
 // Adaptado do scaffold sveltekit/i18n para esta stack
 import { writable, get } from 'svelte/store';
+import { STORAGE_KEYS } from '$lib/constants/storage-keys';
 import ptBR from './pt-BR.json';
 import enUS from './en-US.json';
 import esES from './es-ES.json';
@@ -65,7 +66,7 @@ export function setLocale(newLocale: Locale): void {
   locale.set(newLocale);
   if (typeof localStorage !== 'undefined') {
     try {
-      localStorage.setItem('bes_language', newLocale);
+      localStorage.setItem(STORAGE_KEYS.LANGUAGE, newLocale);
     } catch {
       // localStorage indisponível
     }
@@ -76,7 +77,7 @@ export function setLocale(newLocale: Locale): void {
 export function initLocale(): void {
   if (typeof localStorage !== 'undefined') {
     try {
-      const saved = localStorage.getItem('bes_language') as Locale | null;
+      const saved = localStorage.getItem(STORAGE_KEYS.LANGUAGE) as Locale | null;
       if (saved && Object.keys(locales).includes(saved)) {
         locale.set(saved);
       }
@@ -92,3 +93,4 @@ export const availableLocales: { value: Locale; label: string }[] = [
   { value: 'en-US', label: 'English (en-US)' },
   { value: 'es-ES', label: 'Español (es-ES)' }
 ];
+

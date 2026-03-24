@@ -1,8 +1,10 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { ROUTES } from '$lib/constants/routes';
   import { t } from '$lib/i18n/engine';
   import { projectsStore } from '$lib/stores/projectStore';
   import EmptyState from '$lib/components/ui/EmptyState.svelte';
+  import GenerationPanel from '$lib/components/generation/GenerationPanel.svelte';
 
   const project = $derived($projectsStore.current);
 </script>
@@ -11,20 +13,13 @@
   <title>BES Book Formatter — {t('nav.output')}</title>
 </svelte:head>
 
-<!-- Rock-5: Geração de saída (PDF, EPUB) -->
-<!-- TODO: Implementar backend — Typst + Ghostscript + EPUBCheck -->
 {#if !project}
   <EmptyState
     icon="package"
     title={t('emptyState.openProjectFirst')}
     ctaLabel={t('nav.backToDashboard')}
-    onCta={() => goto('/')}
+    onCta={() => goto(ROUTES.HOME)}
   />
 {:else}
-  <EmptyState
-    icon="package"
-    title={t('nav.output')}
-    description={t('common.comingSoon')}
-    size="md"
-  />
+  <GenerationPanel projectId={project.id} />
 {/if}

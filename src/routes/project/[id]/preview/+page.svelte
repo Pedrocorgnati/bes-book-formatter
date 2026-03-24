@@ -1,8 +1,12 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { ROUTES } from '$lib/constants/routes';
   import { page } from '$app/stores';
   import { t } from '$lib/i18n/engine';
+  import { toast } from '$lib/stores/toastStore';
   import { projectsStore } from '$lib/stores/projectStore';
+  import { invoke } from '@tauri-apps/api/core';
+  import type { ApiResponse } from '$lib/types';
   import EmptyState from '$lib/components/ui/EmptyState.svelte';
   import PreviewSidebar from '$lib/components/preview/PreviewSidebar.svelte';
   import PageSpreadViewer from '$lib/components/preview/PageSpreadViewer.svelte';
@@ -46,6 +50,19 @@
     showTypoHighlights = issues.length > 0;
   }
 
+  async function detectTypoIssuesFromToolbar() {
+    if (!projectId) return;
+    try {
+      const res = await invoke<ApiResponse<TypoIssue[]>>('detect_orphans_widows', { projectId });
+      if (res.data) {
+        handleTypoIssuesDetected(res.data);
+      }
+    } catch (e) {
+      console.error('[Preview] detectTypoIssues error:', e instanceof Error ? e.message : String(e));
+      toast.error(t('preview.typoDetectionError'));
+    }
+  }
+
   // Global keyboard shortcuts
   function handleKeydown(e: KeyboardEvent) {
     const mod = e.metaKey || e.ctrlKey;
@@ -80,7 +97,7 @@
     icon="eye"
     title={t('emptyState.openProjectFirst')}
     ctaLabel={t('nav.backToDashboard')}
-    onCta={() => goto('/')}
+    onCta={() => goto(ROUTES.HOME)}
   />
 {:else}
   <!-- 3-panel preview layout -->
@@ -119,7 +136,7 @@
         onRulerToggle={(r) => (showRuler = r)}
         onAnnotationsToggle={(a) => (showAnnotations = a)}
         onTypoHighlightsToggle={(h) => (showTypoHighlights = h)}
-        onDetectTypoIssues={() => {}}
+        onDetectTypoIssues={detectTypoIssuesFromToolbar}
       />
 
       <!-- Canvas: page viewer with overlays -->

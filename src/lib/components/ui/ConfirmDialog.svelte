@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { t } from '$lib/i18n/engine';
+  import { TIMING } from '$lib/constants/timing';
+
   interface Props {
     open: boolean;
     title: string;
@@ -14,8 +17,8 @@
     open,
     title,
     message,
-    confirmLabel = 'Confirmar',
-    cancelLabel = 'Cancelar',
+    confirmLabel = t('common.confirm'),
+    cancelLabel = t('common.cancel'),
     destructive = false,
     onConfirm,
     onClose
@@ -31,7 +34,8 @@
   // Foca no Cancelar ao abrir (padrão seguro)
   $effect(() => {
     if (open) {
-      setTimeout(() => cancelBtn?.focus(), 50);
+      const timer = setTimeout(() => cancelBtn?.focus(), TIMING.FOCUS_TRANSFER);
+      return () => clearTimeout(timer);
     }
   });
 </script>
@@ -61,7 +65,7 @@
         </div>
       {/if}
       <h2 class="confirm-dialog__title" id="confirm-title">{title}</h2>
-      <button data-testid="confirm-dialog-close-button" class="modal__close" onclick={onClose} aria-label="Fechar">
+      <button data-testid="confirm-dialog-close-button" class="modal__close" onclick={onClose} aria-label={t('common.close')}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"/>
           <line x1="6" y1="6" x2="18" y2="18"/>

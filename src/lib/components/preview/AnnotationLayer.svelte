@@ -1,20 +1,14 @@
 <script lang="ts">
-  import { invoke } from '@tauri-apps/api/core';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { t } from '$lib/i18n/engine';
-  import type { ApiResponse } from '$lib/types';
-
-  interface Annotation {
-    id: string;
-    projectId: string;
-    pageNumber: number;
-    xPercent: number;
-    yPercent: number;
-    annotationType: string;
-    color: string;
-    content: string;
-    createdAt: string;
-  }
+  import { toast } from '$lib/stores/toastStore';
+  import {
+    ipcGetAnnotations,
+    ipcAddAnnotation,
+    ipcDeleteAnnotation,
+    type Annotation,
+  } from '$lib/ipc/preview';
+  import { AnnotationType } from '$lib/types/enums';
 
   interface Props {
     projectId: string;
@@ -36,20 +30,24 @@
   let showModal = $state(false);
   let clickPos = $state({ x: 0, y: 0 });
   let newContent = $state('');
-  let newType = $state<'comment' | 'highlight' | 'flag'>('comment');
+  let newType = $state<AnnotationType>(AnnotationType.COMMENT);
   let newColor = $state('#FFC107');
   let saving = $state(false);
+  let dialogEl = $state<HTMLElement | null>(null);
+
+  // Move focus into dialog whenever it opens
+  $effect(() => {
+    if (showModal && dialogEl) {
+      tick().then(() => dialogEl?.focus());
+    }
+  });
 
   async function loadAnnotations() {
     if (!projectId) return;
     try {
-      const res = await invoke<ApiResponse<Annotation[]>>('get_annotations', {
-        projectId,
-        pageNumber,
-      });
-      if (res.data) annotations = res.data;
+      annotations = await ipcGetAnnotations(projectId, pageNumber);
     } catch (e) {
-      console.error('[AnnotationLayer] load error:', e);
+      console.error('[AnnotationLayer] load error:', e instanceof Error ? e.message : String(e));
     }
   }
 
@@ -68,15 +66,18 @@
     };
     showModal = true;
     newContent = '';
-    newType = 'comment';
+    newType = AnnotationType.COMMENT;
     newColor = '#FFC107';
   }
 
   async function saveAnnotation() {
-    if (!newContent.trim() && newType === 'comment') return;
+    if (!newContent.trim() && newType === AnnotationType.COMMENT) {
+      toast.error(t('preview.annotationContentRequired'));
+      return;
+    }
     saving = true;
     try {
-      const res = await invoke<ApiResponse<Annotation>>('add_annotation', {
+      const annotation = await ipcAddAnnotation({
         projectId,
         pageNumber,
         xPercent: clickPos.x,
@@ -85,12 +86,12 @@
         color: newColor,
         content: newContent.trim(),
       });
-      if (res.data) {
-        annotations = [...annotations, res.data];
-      }
+      annotations = [...annotations, annotation];
+      toast.success(t('common.saved'));
       showModal = false;
     } catch (e) {
-      console.error('[AnnotationLayer] save error:', e);
+      console.error('[AnnotationLayer] save error:', e instanceof Error ? e.message : String(e));
+      toast.error(t('common.errorGeneric'));
     } finally {
       saving = false;
     }
@@ -98,27 +99,32 @@
 
   async function deleteAnnotation(id: string) {
     try {
-      await invoke('delete_annotation', { annotationId: id });
+      await ipcDeleteAnnotation(id);
       annotations = annotations.filter((a) => a.id !== id);
+      toast.success(t('common.deleted'));
     } catch (e) {
-      console.error('[AnnotationLayer] delete error:', e);
+      console.error('[AnnotationLayer] delete error:', e instanceof Error ? e.message : String(e));
+      toast.error(t('common.errorGeneric'));
     }
   }
 
   function annotationIcon(type: string) {
-    if (type === 'comment') return '💬';
-    if (type === 'flag') return '🚩';
+    if (type === AnnotationType.COMMENT) return '💬';
+    if (type === AnnotationType.FLAG) return '🚩';
     return '🖍';
   }
 </script>
 
 {#if visible}
-  <!-- Annotation overlay layer -->
+  <!-- Annotation overlay layer — canvas-like region; tabindex required for keyboard access -->
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div
     class="annotation-layer"
     style="width:{pageWidthPx}px; height:{pageHeightPx}px;"
     onclick={handleLayerClick}
-    role="region"
+    onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleLayerClick(e as unknown as MouseEvent); } }}
+    role="application"
     aria-label={t('preview.annotationLayerLabel')}
     tabindex="0"
   >
@@ -129,7 +135,6 @@
         title={ann.content || ann.annotationType}
         aria-label="{t('preview.annotation')}: {ann.content}"
         role="img"
-        onclick={(e) => { e.stopPropagation(); }}
       >
         {annotationIcon(ann.annotationType)}
         <span class="annotation-tooltip">{ann.content}</span>
@@ -145,9 +150,11 @@
 
   <!-- Add annotation modal -->
   {#if showModal}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
     <div
       class="annotation-modal-overlay"
       onclick={() => (showModal = false)}
+      onkeydown={(e) => { if (e.key === 'Escape') showModal = false; }}
       role="presentation"
     >
       <div
@@ -155,9 +162,11 @@
         onclick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label={t('preview.addAnnotation')}
+        aria-labelledby="ann-modal-title"
+        tabindex="-1"
+        bind:this={dialogEl}
       >
-        <h4>{t('preview.addAnnotation')}</h4>
+        <h4 id="ann-modal-title">{t('preview.addAnnotation')}</h4>
 
         <div class="annotation-modal__field">
           <label for="ann-type">{t('preview.annotationType')}</label>
@@ -176,7 +185,11 @@
             rows="3"
             maxlength="1000"
             placeholder={t('preview.annotationPlaceholder')}
+            aria-describedby="ann-content-hint"
           ></textarea>
+          <p id="ann-content-hint" class="annotation-modal__hint" aria-live="polite">
+            {newContent.length}/1000
+          </p>
         </div>
 
         <div class="annotation-modal__field annotation-modal__color">
@@ -189,6 +202,7 @@
             class="btn btn--primary"
             onclick={saveAnnotation}
             disabled={saving}
+            aria-busy={saving}
           >
             {saving ? t('common.saving') : t('common.save')}
           </button>
@@ -332,6 +346,13 @@
   .annotation-modal__color {
     flex-direction: row;
     align-items: center;
+  }
+
+  .annotation-modal__hint {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin: 0;
+    text-align: right;
   }
 
   .annotation-modal__actions {
